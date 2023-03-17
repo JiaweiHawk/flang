@@ -147,6 +147,8 @@ stg_alloc_base(STG *stg, int dtsize, BIGUINT64 size, const char *name)
     stg->stg_cleared = 0;
     stg->stg_name = name;
     stg->stg_base = (void *)sccalloc(stg->stg_dtsize * size);
+    stg->stg_align = (void *)sccalloc(stg->stg_dtsize * size);
+    memset(stg->stg_align, 0, stg->stg_dtsize * size);
   } else {
     invalid_size("stg_alloc", dtsize, size, name);
   }
@@ -210,8 +212,10 @@ stg_delete(STG *stg)
   if (DBGBIT(7,0x10))
     fprintf(gbl.dbgfil, "stg_delete(stg=%p, dtsize=%d, size=%d, name=%s)\n",
       stg, stg->stg_dtsize, stg->stg_size, stg->stg_name);
-  if (stg->stg_base)
+  if (stg->stg_base) {
     sccfree((char *)stg->stg_base);
+    sccfree((char *)stg->stg_align);
+  }
   memset(stg, 0, sizeof(STG));
 } /* stg_delete */
 
@@ -256,6 +260,10 @@ stg_need(STG *stg)
       thisstg->stg_size = newsize;
       thisstg->stg_base = (void *)sccrelal(
           (char *)thisstg->stg_base, newsize * thisstg->stg_dtsize);
+      thisstg->stg_align = (void *)sccrelal(
+          (char *)thisstg->stg_align, newsize * thisstg->stg_dtsize);
+      memset((char*)thisstg->stg_align + oldsize * thisstg->stg_dtsize, 0,
+             (newsize - oldsize) * thisstg->stg_dtsize);
     }
     /* we have to clear all newly allocated elements, in case there
      * are sidecars with the NOCLEAR flag set, so they get initially cleared */

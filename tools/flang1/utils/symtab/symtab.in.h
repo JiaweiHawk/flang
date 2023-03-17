@@ -51,6 +51,7 @@
 
 
 #define DTY(d) (stb.dt.stg_base[d])
+#define DTA(d) (stb.dt.stg_align[d])
 
 /* for fast DT checking -- define table indexed by TY_ */
 extern short dttypes[TY_MAX+1];

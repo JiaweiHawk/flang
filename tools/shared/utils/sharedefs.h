@@ -38,21 +38,21 @@
 
 /* declare:
  *  struct{
- *     dt* stg_base;
+ *     dt* stg_base, *stg_align;
  *     unsigned int stg_size, stg_avail, stg_free, stg_cleared,
  * stg_dtsize;
  *     void* stg_sidecar; *   }name; */
 
 /* declare the stg_ members; useful in a struct that also has other members */
 #define STG_MEMBERS(dt)                                                \
-  dt *stg_base;                                                        \
+  dt *stg_base, *stg_align;                                            \
   unsigned int stg_size, stg_avail, stg_free, stg_cleared, stg_dtsize, \
       stg_freelink_offset, stg_flags;                                  \
   char *stg_name;                                                      \
   void *stg_sidecar
 
 /* to statically initialize STG_MEMBERS */
-#define STG_INIT NULL, 0, 0, 0, 0, 0, 0, 0, NULL, NULL
+#define STG_INIT NULL, NULL, 0, 0, 0, 0, 0, 0, 0, NULL, NULL
 
 /* declare a struct with the stg_members */
 #define STG_DECLARE(name, dt) \
