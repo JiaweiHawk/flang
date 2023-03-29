@@ -12620,6 +12620,7 @@ gen_acon_expr(int ilix, LL_Type *expected_type)
   /* Handle pointer constants with no base symbol table pointer.
    * This also becomes a pointer-sized integer */
   sptr = SymConval1(opnd);
+  dtype = DTYPEG(sptr);
   if (!sptr) {
     num = ACONOFFG(opnd);
     ISZ_2_INT64(num, val);
@@ -12628,11 +12629,30 @@ gen_acon_expr(int ilix, LL_Type *expected_type)
   sym_is_refd(sptr);
   idx = (STYPEG(sptr) == ST_STRUCT || STYPEG(sptr) == ST_ARRAY
          || ACONOFFG(opnd) < 0) ? 0 : ACONOFFG(opnd);
-  process_sptr_offset(sptr, variable_offset_in_aggregate(sptr, idx));
+  if (DTA(dtype)) {
+    /* handle the flang1's pragma !dir$ align
+     * adjust the sptr's offset in ag to be aligned with
+     * sptr's alignment.
+     * */
+    process_sptr_offset(sptr, idx + ALIGN(
+                                      variable_offset_in_aggregate(sptr, 0),
+                                      DTA(dtype)));
+  }else {
+    process_sptr_offset(sptr, variable_offset_in_aggregate(sptr, idx));
+  }
   idx = ACONOFFG(opnd); /* byte offset */
 
   ty1 = make_lltype_from_dtype(DT_ADDR);
-  idx = variable_offset_in_aggregate(sptr, idx);
+  if (DTA(dtype)) {
+    /* handle the flang1's pragma !dir$ align
+     * adjust the sptr's offset in ag to be aligned with
+     * sptr's alignment.
+     * */
+    idx += ALIGN(variable_offset_in_aggregate(sptr, 0), DTA(dtype));
+  }else {
+    idx = variable_offset_in_aggregate(sptr, idx);
+  }
+
   if (idx) {
     base_op = gen_sptr(sptr);
     index_op = NULL;
