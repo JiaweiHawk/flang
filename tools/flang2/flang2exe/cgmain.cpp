@@ -12582,7 +12582,7 @@ gen_address_operand(int addr_op, int nme, bool lda, LL_Type *llt_expected,
 static OPERAND *
 gen_acon_expr(int ilix, LL_Type *expected_type)
 {
-  SPTR sptr;
+  SPTR sptr, ag;
   DTYPE dtype;
   ISZ_T idx;
   LL_Type *ty1;
@@ -12673,6 +12673,19 @@ gen_acon_expr(int ilix, LL_Type *expected_type)
                DTY(DTYPEG(midnum)) == TY_ARRAY) /* pointer */
         operand->ll_type = make_ptr_lltype(operand->ll_type);
     }
+  }
+
+  if (DTA(dtype)) {
+    /* handle the flang1 pragma !dir$ align
+     * Here we record the sptr's alignment
+     * to its belonging ag, so its ag's alignment
+     * can be aligned to this alignment
+     */
+    char gname[MXIDLN + 50];
+    sprintf(gname, "struct%s", get_llvm_name(sptr));
+    ag = find_ag(gname);
+    if (DTA(dtype) >= AG_ALIGN(ag))
+      AG_ALIGN(ag) = DTA(dtype) + 1;
   }
 
   if (operand->ll_type && VOLG(sptr))

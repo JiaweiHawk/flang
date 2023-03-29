@@ -1174,6 +1174,13 @@ assemble_end(void)
         fprintf(ASMFIL, "%%struct%s = type < { %s } > \n", name, typed);
         fprintf(ASMFIL, "@%s = %s global %%struct%s ", name,
                 AG_ISMOD(gblsym) ? "external" : "common", name);
+
+        /* handle the flang1 pragma !dir$ align
+         * Here we refer common block's alignment from
+         * its belonging ag's alignment
+         */
+        align_value = AG_ALIGN(tdefsym) > align_value ?
+                      AG_ALIGN(tdefsym) : align_value;
         fprintf(ASMFIL, "%s, align %d",
                 AG_ISMOD(gblsym) ? "" : " zeroinitializer", align_value);
       }
@@ -1506,12 +1513,24 @@ write_bss(void)
   char *bss_nm = bss_name;
 
   if (gbl.bss_addr) {
+    char gname[MXIDLN + 50];
+    int align;
+    SPTR ag;
+
+    /* handle the flang1 pragma !dir$ align
+     * Here we refer bss's alignment from
+     * its belonging ag's alignment
+     */
+    sprintf(gname, "struct%s", bss_nm);
+    ag = find_ag(gname);
+    align = AG_ALIGN(ag) > 32 ? AG_ALIGN(ag) : 32;
+
     fprintf(ASMFIL, "%%struct%s = type <{[%" ISZ_PF "d x i8]}>\n", bss_nm,
             gbl.bss_addr);
     fprintf(ASMFIL,
             "@%s = %s %%struct%s <{[%" ISZ_PF "d x i8] "
-            "zeroinitializer }> , align 32",
-            bss_nm, type_str, bss_nm, gbl.bss_addr);
+            "zeroinitializer }> , align %d",
+            bss_nm, type_str, bss_nm, gbl.bss_addr, align);
     ll_write_object_dbg_references(ASMFIL, cpu_llvm_module, bss_dbg_list);
     bss_dbg_list = NULL;
     fputc('\n', ASMFIL);
