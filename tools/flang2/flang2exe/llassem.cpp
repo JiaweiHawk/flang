@@ -4316,6 +4316,10 @@ assn_static_off(SPTR sptr, DTYPE dtype, ISZ_T size)
   } else {
     a = align_unconstrained(dtype);
   }
+
+  if (DTA(dtype) > a)
+    a = DTA(dtype);
+
   addr = ALIGN(addr, a);
   ADDRESSP(sptr, addr);
   if (DINITG(sptr)) {
