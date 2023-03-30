@@ -1417,6 +1417,25 @@ get_type(int n, TY_KIND v1, int v2)
   }
   if (dtype == 0) {
     dtype = STG_NEXT_SIZE(stb.dt, n);
+
+    /* handle the possible !dir$ align XX,
+     *
+     * flang1 reaches here only when creating
+     * new dtype. So flang1 should handle the
+     * possible align pragma for new type here.
+     *
+     * flang1 should store the alignment from flg.x[251]
+     * to DTA, later it will updates the dtype alignment
+     * when in alignment() or lower_put_datatype().
+     *
+     * Note that this pragma should only be used to
+     * this strucutre, so flang1 need to clear the flg.x[251]
+     */
+    if (flg.x[251]) {
+      DTA(dtype) = flg.x[251] - 1;
+      flg.x[251] = 0;
+    }
+
     DTY(dtype) = v1;
     DTY(dtype + 1) = v2;
     if (v1 == TY_CHAR || is_nchar) {
