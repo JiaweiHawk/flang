@@ -1237,7 +1237,10 @@ alignment(DTYPE dtype)
   case TY_CHAR:
   case TY_NCHAR:
   case TY_PTR:
-    return dtypeinfo[ty].align;
+    align_val = dtypeinfo[ty].align;
+    if (DTA(dtype) > align_val)
+      return DTA(dtype);
+    return align_val;
   case TY_INT8:
   case TY_LOG8:
     if (!flg.dalign || XBIT(119, 0x100000))
