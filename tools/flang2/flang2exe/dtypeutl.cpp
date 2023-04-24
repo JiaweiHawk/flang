@@ -528,7 +528,10 @@ alignment(DTYPE dtype)
 
   case TY_STRUCT:
   case TY_UNION:
-    return DTyAlgTyAlign(dtype);
+    align_bits = DTyAlgTyAlign(dtype);
+    if (DTA(dtype) > align_bits)
+      return DTA(dtype);
+    return align_bits;
 
   default:
     interr("alignment: bad dtype ", ty, ERR_Severe);
