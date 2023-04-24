@@ -1251,6 +1251,8 @@ alignment(DTYPE dtype)
   case TY_STRUCT:
   case TY_UNION:
   case TY_DERIVED:
+    if (DTA(dtype) > DTY(dtype + 4))
+      return DTA(dtype);
     return DTY(dtype + 4);
 
   default:
