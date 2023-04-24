@@ -2193,6 +2193,7 @@ import(lzhandle *fdlz, WantPrivates wantPrivates, int ivsn)
         DTY(new_id + 3) = get_num(10); /* (old) tag */
         DTY(new_id + 4) = get_num(10); /* align */
         DTY(new_id + 5) = 0;           /* ICT */
+        DTA(new_id) = DTY(new_id + 4);
         break;
       case TY_CHAR:
       case TY_NCHAR:

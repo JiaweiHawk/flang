@@ -2102,8 +2102,12 @@ export_dt(int dtype)
   case TY_STRUCT:
   case TY_DERIVED:
     /*  print dtype and  descriptor entry */
-    lzprintf(outlz, " %d %d %d %d", (int)DTY(dtype + 1), (int)DTY(dtype + 2),
-             (int)DTY(dtype + 3), (int)DTY(dtype + 4));
+    lzprintf(outlz, " %d %d %d", (int)DTY(dtype + 1), (int)DTY(dtype + 2),
+             (int)DTY(dtype + 3));
+    if (DTA(dtype) > DTY(dtype + 4))
+      lzprintf(outlz, " %d", (int)DTA(dtype));
+    else
+      lzprintf(outlz, " %d", (int)DTY(dtype + 4));
     break;
 
   case TY_CHAR:
