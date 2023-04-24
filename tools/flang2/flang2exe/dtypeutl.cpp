@@ -512,7 +512,10 @@ alignment(DTYPE dtype)
   case TY_LOG128:
   case TY_FLOAT128:
   case TY_CMPLX128:
-    return dtypeinfo[ty].align;
+    align_bits = dtypeinfo[ty].align;
+    if (DTA(dtype) > align_bits)
+      return DTA(dtype);
+    return align_bits;
   case TY_INT8:
   case TY_UINT8:
   case TY_LOG8:
