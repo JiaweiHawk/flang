@@ -2200,6 +2200,7 @@ import(lzhandle *fdlz, WantPrivates wantPrivates, int ivsn)
       case TY_NCHAR:
         stringlen = get_num(10);
         new_id = get_type(2, TY_NONE, stringlen);
+        DTA(new_id) = get_num(10);  /* align */
         /* use TY_NONE to avoid 'sharing' character data types */
         DTY(new_id) = pd->ty;
         break;

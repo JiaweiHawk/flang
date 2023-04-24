@@ -2122,6 +2122,15 @@ export_dt(int dtype)
   case TY_CHAR:
   case TY_NCHAR:
     lzprintf(outlz, " %d", (int)DTY(dtype + 1));
+
+    /* If align pragma value is smaller than its original alignment,
+     * then align pragma should have no effect
+     */
+    if (DTA(dtype) == alignment(dtype))
+      lzprintf(outlz, " %d", (int)DTA(dtype));
+    else
+      lzprintf(outlz, " %d", 0);
+
     break;
 
   case TY_PROC:
