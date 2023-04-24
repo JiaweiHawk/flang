@@ -1721,7 +1721,9 @@ read_datatype(void)
     } else if (size == -4) {
       datatypexref[dtype] = DT_DEFERCHAR;
     } else {
-      datatypexref[dtype] = get_type(2, dval, size);
+      dt = get_type(2, dval, size);
+      DTA(dt) = getval("align");
+      datatypexref[dtype] = dt;
     }
     break;
   case TY_NCHAR:
