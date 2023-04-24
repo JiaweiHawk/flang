@@ -1246,6 +1246,8 @@ alignment(DTYPE dtype)
 
   case TY_ARRAY:
     align_val = alignment((int)DTY(dtype + 1));
+    if (DTA(dtype) > align_val)
+      return DTA(dtype);
     return align_val;
 
   case TY_STRUCT:
