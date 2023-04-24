@@ -2753,7 +2753,11 @@ lower_put_datatype(int dtype, int usage)
     putsym("member", DTY(dtype + 1));
     putval("size", DTY(dtype + 2));
     putsym("tag", DTY(dtype + 3));
-    putval("align", DTY(dtype + 4));
+
+    if (DTA(dtype) > DTY(dtype + 4))
+      putval("align", DTA(dtype));
+    else
+      putval("align", DTY(dtype + 4));
     break;
 
   case TY_NUMERIC:

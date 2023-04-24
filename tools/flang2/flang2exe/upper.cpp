@@ -1708,6 +1708,7 @@ read_datatype(void)
     dt = get_type(6, dval, NOSYM);
     datatypexref[dtype] = dt;
     DTySetAlgTy(dt, member, size, tag, align, 0);
+    DTA(dt) = align;
     break;
   case TY_CHAR:
     size = getval("len");
