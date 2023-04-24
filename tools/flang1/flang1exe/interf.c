@@ -2183,6 +2183,7 @@ import(lzhandle *fdlz, WantPrivates wantPrivates, int ivsn)
             ADD_EXTNTAST(new_id, i) = get_num(10);
           }
         }
+        DTA(new_id) = get_num(10);  /* align */
         break;
       case TY_UNION:
       case TY_STRUCT:
