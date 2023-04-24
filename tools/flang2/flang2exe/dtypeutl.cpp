@@ -522,6 +522,8 @@ alignment(DTYPE dtype)
 
   case TY_ARRAY:
     align_bits = alignment(DTySeqTyElement(dtype));
+    if (DTA(dtype) > align_bits)
+      return DTA(dtype);
     return align_bits;
   case TY_VECT:
     return alignment(DTySeqTyElement(dtype));
