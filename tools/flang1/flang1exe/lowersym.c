@@ -3075,6 +3075,15 @@ lower_put_datatype(int dtype, int usage)
       }
     }
     putsym("numelm", numelm);
+
+    /* If align pragma value is smaller than its original alignment,
+     * then align pragma should have no effect
+     */
+    if (DTA(dtype) == alignment(dtype))
+      putval("align", DTA(dtype));
+    else
+      putval("align", 0);
+
     break;
 
   default:

@@ -1754,6 +1754,7 @@ read_datatype(void)
     }
     AD_ZBASE(ad) = getval("zbase");
     AD_NUMELM(ad) = getSptrVal("numelm");
+    DTA(dt) = getval("align");
     datatypexref[dtype] = dt;
     break;
   case TY_PTR:
