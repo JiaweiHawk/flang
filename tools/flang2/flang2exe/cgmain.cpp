@@ -12659,6 +12659,26 @@ gen_acon_expr(int ilix, LL_Type *expected_type)
     }
   }
 
+  /*
+   * Update the alignment for AG.
+   *
+   * To align the symbol set by `!DIR$ ALIGN alignment` pragma
+   * in flang1, flang should align both its symbol's offset
+   * in AG and AG's alignment in memory.
+   *
+   * Here we update the AG_ALIGN(ag) to enable alignment of the
+   * symbol's corresponding AG with the symbol's alignment.
+   */
+  if (PALIGNG(sptr)) {
+    char gname[MXIDLN + 50];
+    SPTR ag;
+    sprintf(gname, "struct%s", get_llvm_name(sptr));
+    ag = find_ag(gname);
+    if (AG_ALIGN(ag) < PALIGNG(sptr)) {
+      AG_ALIGN(ag) = PALIGNG(sptr);
+    }
+  }
+
   if (operand->ll_type && VOLG(sptr))
     operand->flags |= OPF_VOLATILE;
   return operand;

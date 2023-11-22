@@ -1144,8 +1144,8 @@ assemble_end(void)
   llvm_write_ctors();
 
   /* write out common block which is not initialized */
-  align_value = CACHE_ALIGN + 1;
   for (gblsym = ag_cmblks; gblsym; gblsym = AG_SYMLK(gblsym)) {
+    align_value = CACHE_ALIGN + 1;
     if (AG_DSIZE(gblsym) && (!AG_CMBLKINITDATA(gblsym)))
       continue;
     if (AG_SC(gblsym) == SC_EXTERN) {
@@ -1179,6 +1179,15 @@ assemble_end(void)
           fprintf(ASMFIL, "@%s = %s global %%struct%s ", name,
                   AG_ISMOD(gblsym) ? "external" : "common", name);
         }
+        /*
+         * Common block should align with its corresponding AG's
+         * alignment, so that all symbols within the common block
+         * align with the alignment set by `!DIR$ ALIGN alignment`
+         * pragma in flang1 as long as the symbol's offset in AG aligns
+         * with the specified alignment.
+         */
+        align_value =
+            AG_ALIGN(tdefsym) > align_value ? AG_ALIGN(tdefsym) : align_value;
         fprintf(ASMFIL, "%s, align %d",
                 AG_ISMOD(gblsym) ? "" : " zeroinitializer", align_value);
       }
@@ -1521,12 +1530,25 @@ write_bss(void)
   char *bss_nm = bss_name;
 
   if (gbl.bss_addr) {
+    char gname[MXIDLN + 50];
+    int align = 32;
+    SPTR ag;
+
+    /*
+     * BSS should align with its corresponding AG's alignment, so that
+     * all symbols within the BSS align with the alignment set by
+     * `!DIR$ ALIGN alignment` pragma in flang1 as long as the symbol's
+     * offset in AG aligns with the specified alignment.
+     */
+    sprintf(gname, "struct%s", bss_nm);
+    ag = find_ag(gname);
+    align = AG_ALIGN(ag) > align ? AG_ALIGN(ag) : align;
     fprintf(ASMFIL, "%%struct%s = type <{[%" ISZ_PF "d x i8]}>\n", bss_nm,
             gbl.bss_addr);
     fprintf(ASMFIL,
             "@%s = %s %%struct%s <{[%" ISZ_PF "d x i8] "
-            "zeroinitializer }> , align 32",
-            bss_nm, type_str, bss_nm, gbl.bss_addr);
+            "zeroinitializer }> , align %d",
+            bss_nm, type_str, bss_nm, gbl.bss_addr, align);
     ll_write_object_dbg_references(ASMFIL, cpu_llvm_module, bss_dbg_list);
     bss_dbg_list = NULL;
     fputc('\n', ASMFIL);
